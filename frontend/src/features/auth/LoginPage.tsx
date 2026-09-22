@@ -1,0 +1,82 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { AlertCircle } from "lucide-react";
+import { AuthLayout } from "@/components/layout/AuthLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { useAuth } from "@/context/AuthContext";
+
+const loginSchema = z.object({
+  email: z.string().trim().email("Enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+type LoginForm = z.infer<typeof loginSchema>;
+
+export default function LoginPage() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
+
+  const onSubmit = async (values: LoginForm) => {
+    setServerError(null);
+    try {
+      await login(values);
+      const redirectTo = (location.state as { from?: string })?.from ?? "/dashboard";
+      navigate(redirectTo, { replace: true });
+    } catch (error: any) {
+      setServerError(error?.response?.data?.message ?? "Unable to sign in. Please try again.");
+    }
+  };
+
+  return (
+    <AuthLayout title="Welcome back" subtitle="Sign in to continue to your dashboard">
+      <Card>
+        <CardContent className="pt-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {serverError && (
+              <div className="flex items-center gap-2 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                {serverError}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" placeholder="you@example.com" {...register("email")} />
+              {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" placeholder="••••••••" {...register("password")} />
+              {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
+            </div>
+
+            <Button type="submit" className="w-full" isLoading={isSubmitting}>
+              Sign in
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="justify-center text-sm text-muted-foreground">
+          Don&apos;t have an account?
+          <Link to="/register" className="ml-1 font-medium text-primary hover:underline">
+            Create one
+          </Link>
+        </CardFooter>
+      </Card>
+    </AuthLayout>
+  );
+}
