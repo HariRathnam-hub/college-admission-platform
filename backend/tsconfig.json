@@ -10,12 +10,15 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "moduleResolution": "nodenext",
     "declaration": false,
     "sourceMap": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["*"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"],
