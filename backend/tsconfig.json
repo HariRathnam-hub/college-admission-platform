@@ -10,13 +10,15 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "moduleResolution": "node",
     "declaration": false,
     "sourceMap": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitAny": true,
+    "baseUrl": "src",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["*"]
     }
   },
   "include": ["src/**/*.ts"],
